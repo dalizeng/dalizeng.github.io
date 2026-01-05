@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年可编辑日历</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --light-color: #f0f4f8;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-color: #333;
+            --text-light: #777;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .description {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .calendar-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calendar-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+        }
+
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .month-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .month-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--light-color);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--dark-color);
+            font-size: 1.2rem;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: var(--light-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .calendar-day:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .calendar-day.active {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+        }
+
+        .day-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .day-week {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .todo-count {
+            font-size: 0.8rem;
+            background: var(--primary-color);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto;
+            align-self: flex-end;
+        }
+
+        .todos-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .todos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .selected-date {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .add-todo-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .add-todo-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .todos-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 500px;
+            padding-right: 5px;
+        }
+
+        .todo-item {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .todo-item.completed {
+            border-left-color: var(--success-color);
+            opacity: 0.8;
+        }
+
+        .todo-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .todo-item.completed .todo-checkbox {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            color: white;
+        }
+
+        .todo-content {
+            flex-grow: 1;
+        }
+
+        .todo-text {
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        .todo-time {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .todo-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .todo-action-btn:hover {
+            background: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        .theme-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .theme-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .theme-option.active {
+            border-color: var(--dark-color);
+            transform: scale(1.1);
+        }
+
+        .empty-todos {
+            text-align: center;
+            color: var(--text-light);
+            padding: 40px 20px;
+        }
+
+        .empty-todos i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .mobile-actions {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .mobile-add-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background: #eee;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .calendar-section {
+                padding: 15px;
+            }
+            
+            .month-title {
+                font-size: 1.5rem;
+            }
+            
+            .mobile-actions {
+                display: block;
+            }
+            
+            .add-todo-btn {
+                display: none;
+            }
+            
+            .day-number {
+                font-size: 1rem;
+            }
+            
+            .day-week {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .calendar-grid {
+                gap: 5px;
+            }
+            
+            .calendar-day {
+                padding: 5px;
+            }
+            
+            .todo-item {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>2026年可编辑日历</h1>
+            <p class="description">这是一个可在电脑和手机端使用的可编辑日历，您可以管理每日待办事项，标记完成状态，并享受不同月份的颜色主题。</p>
+        </header>
+        
+        <div class="calendar-container">
+            <section class="calendar-section">
+                <div class="month-header">
+                    <div class="month-title" id="current-month">2026年1月</div>
+                    <div class="month-nav">
+                        <button class="nav-btn" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                        <button class="nav-btn" id="next-month"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div class="weekdays">
+                    <div>日</div>
+                    <div>一</div>
+                    <div>二</div>
+                    <div>三</div>
+                    <div>四</div>
+                    <div>五</div>
+                    <div>六</div>
+                </div>
+                
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- 日历日期将通过JS动态生成 -->
+                </div>
+                
+                <div class="theme-selector">
+                    <div class="theme-option active" style="background-color: #4a6fa5;" data-month="0"></div>
+                    <div class="theme-option" style="background-color: #9b59b6;" data-month="1"></div>
+                    <div class="theme-option" style="background-color: #2ecc71;" data-month="2"></div>
+                    <div class="theme-option" style="background-color: #e74c3c;" data-month="3"></div>
+                    <div class="theme-option" style="background-color: #f39c12;" data-month="4"></div>
+                    <div class="theme-option" style="background-color: #1abc9c;" data-month="5"></div>
+                    <div class="theme-option" style="background-color: #d35400;" data-month="6"></div>
+                    <div class="theme-option" style="background-color: #3498db;" data-month="7"></div>
+                    <div class="theme-option" style="background-color: #8e44ad;" data-month="8"></div>
+                    <div class="theme-option" style="background-color: #c0392b;" data-month="9"></div>
+                    <div class="theme-option" style="background-color: #16a085;" data-month="10"></div>
+                    <div class="theme-option" style="background-color: #7f8c8d;" data-month="11"></div>
+                </div>
+            </section>
+            
+            <section class="calendar-section todos-section">
+                <div class="todos-header">
+                    <div class="selected-date" id="selected-date">2026年1月1日 星期四</div>
+                    <button class="add-todo-btn" id="add-todo-desktop">
+                        <i class="fas fa-plus"></i> 添加事项
+                    </button>
+                </div>
+                
+                <div class="todos-container" id="todos-container">
+                    <!-- 待办事项将通过JS动态生成 -->
+                    <div class="empty-todos" id="empty-todos">
+                        <i class="far fa-calendar-check"></i>
+                        <h3>暂无待办事项</h3>
+                        <p>点击"添加事项"按钮或选择一个日期来添加待办事项</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div class="mobile-actions">
+            <button class="mobile-add-btn" id="add-todo-mobile">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        
+        <footer>
+            <p>© 2026 可编辑日历 | 数据保存在您的设备本地，确保隐私安全</p>
+            <p>提示：在不同设备上使用相同浏览器登录可以同步数据（需开启同步功能）</p>
+        </footer>
+    </div>
+    
+    <!-- 添加/编辑待办事项模态框 -->
+    <div class="modal" id="todo-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">添加待办事项</div>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            
+            <form id="todo-form">
+                <div class="form-group">
+                    <label for="todo-date">日期</label>
+                    <input type="text" id="todo-date" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="todo-text">事项内容</label>
+                    <textarea id="todo-text" class="form-control" rows="4" placeholder="请输入待办事项内容..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="todo-time">时间（可选）</label>
+                    <input type="text" id="todo-time" class="form-control" placeholder="例如：上午10:00">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-todo">取消</button>
+                    <button type="submit" class="btn btn-primary" id="save-todo">保存事项</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 2026年日历数据，基于1月1日是星期四
+        const CALENDAR_2026 = {
+            startDay: 4, // 1月1日是星期四（0=周日，1=周一，...，6=周六）
+            months: [
+                { name: "一月", days: 31, color: "#4a6fa5" },
+                { name: "二月", days: 28, color: "#9b59b6" }, // 2026年不是闰年
+                { name: "三月", days: 31, color: "#2ecc71" },
+                { name: "四月", days: 30, color: "#e74c3c" },
+                { name: "五月", days: 31, color: "#f39c12" },
+                { name: "六月", days: 30, color: "#1abc9c" },
+                { name: "七月", days: 31, color: "#d35400" },
+                { name: "八月", days: 31, color: "#3498db" },
+                { name: "九月", days: 30, color: "#8e44ad" },
+                { name: "十月", days: 31, color: "#c0392b" },
+                { name: "十一月", days: 30, color: "#16a085" },
+                { name: "十二月", days: 31, color: "#7f8c8d" }
+            ],
+            weekdays: ["日", "一", "二", "三", "四", "五", "六"]
+        };
+
+        // 全局变量
+        let currentMonth = 0; // 0-11 表示1-12月
+        let currentYear = 2026;
+        let selectedDate = new Date(2026, 0, 1); // 默认选择1月1日
+        let todos = JSON.parse(localStorage.getItem('2026-calendar-todos')) || {};
+        let editingTodoId = null;
+
+        // DOM元素
+        const calendarGrid = document.getElementById('calendar-grid');
+        const currentMonthElement = document.getElementById('current-month');
+        const selectedDateElement = document.getElementById('selected-date');
+        const todosContainer = document.getElementById('todos-container');
+        const emptyTodosElement = document.getElementById('empty-todos');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        const todoModal = document.getElementById('todo-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const todoForm = document.getElementById('todo-form');
+        const todoDateInput = document.getElementById('todo-date');
+        const todoTextInput = document.getElementById('todo-text');
+        const todoTimeInput = document.getElementById('todo-time');
+
+        // 初始化日历
+        function initCalendar() {
+            renderCalendar();
+            updateSelectedDateDisplay();
+            renderTodosForSelectedDate();
+            setupEventListeners();
+            applyTheme(currentMonth);
+        }
+
+        // 渲染日历
+        function renderCalendar() {
+            calendarGrid.innerHTML = '';
+            
+            const monthData = CALENDAR_2026.months[currentMonth];
+            currentMonthElement.textContent = `${currentYear}年${monthData.name}`;
+            
+            // 计算当月第一天是星期几
+            let firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
+            
+            // 添加上个月的最后几天
+            const prevMonthDays = getPrevMonthDays(currentYear, currentMonth);
+            for (let i = prevMonthDays - firstDayOfMonth + 1; i <= prevMonthDays; i++) {
+                createDayElement(i, true);
+            }
+            
+            // 添加当月的所有天数
+            for (let i = 1; i <= monthData.days; i++) {
+                createDayElement(i, false);
+            }
+            
+            // 添加下个月的前几天
+            const totalCells = 42; // 6行 × 7天
+            const daysSoFar = prevMonthDays + monthData.days;
+            const nextMonthDays = totalCells - daysSoFar;
+            for (let i = 1; i <= nextMonthDays; i++) {
+                createDayElement(i, true);
+            }
+        }
+
+        // 创建日期元素
+        function createDayElement(day, isOtherMonth) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            if (isOtherMonth) {
+                dayElement.classList.add('other-month');
+            } else {
+                // 检查是否是选中的日期
+                if (currentYear === selectedDate.getFullYear() && 
+                    currentMonth === selectedDate.getMonth() && 
+                    day === selectedDate.getDate()) {
+                    dayElement.classList.add('active');
+                }
+                
+                // 添加点击事件
+                dayElement.addEventListener('click', () => {
+                    selectDate(new Date(currentYear, currentMonth, day));
+                });
+            }
+            
+            // 计算星期几
+            const date = new Date(currentYear, currentMonth, day);
+            const weekday = CALENDAR_2026.weekdays[date.getDay()];
+            
+            dayElement.innerHTML = `
+                <div class="day-number">${day}</div>
+                <div class="day-week">${weekday}</div>
+            `;
+            
+            // 如果有待办事项，显示数量
+            if (!isOtherMonth) {
+                const dateKey = formatDateKey(date);
+                const dayTodos = todos[dateKey] || [];
+                const pendingCount = dayTodos.filter(todo => !todo.completed).length;
+                
+                if (pendingCount > 0) {
+                    const todoCountElement = document.createElement('div');
+                    todoCountElement.className = 'todo-count';
+                    todoCountElement.textContent = pendingCount;
+                    dayElement.appendChild(todoCountElement);
+                }
+            }
+            
+            calendarGrid.appendChild(dayElement);
+        }
+
+        // 获取当月第一天是星期几
+        function getFirstDayOfMonth(year, month) {
+            // 2026年1月1日是星期四
+            let day = CALENDAR_2026.startDay;
+            
+            // 计算从1月到当前月的天数偏移
+            for (let m = 0; m < month; m++) {
+                day += CALENDAR_2026.months[m].days;
+            }
+            
+            return day % 7;
+        }
+
+        // 获取上个月的天数
+        function getPrevMonthDays(year, month) {
+            if (month === 0) {
+                return CALENDAR_2026.months[11].days; // 12月
+            } else {
+                return CALENDAR_2026.months[month - 1].days;
+            }
+        }
+
+        // 选择日期
+        function selectDate(date) {
+            selectedDate = date;
+            updateSelectedDateDisplay();
+            renderTodosForSelectedDate();
+            renderCalendar(); // 重新渲染日历以更新选中状态
+        }
+
+        // 更新选中日期的显示
+        function updateSelectedDateDisplay() {
+            const month = selectedDate.getMonth();
+            const day = selectedDate.getDate();
+            const weekday = CALENDAR_2026.weekdays[selectedDate.getDay()];
+            const monthName = CALENDAR_2026.months[month].name;
+            
+            selectedDateElement.textContent = `${currentYear}年${monthName}${day}日 星期${weekday}`;
+            
+            // 如果当前显示的月份不是选中日期的月份，切换到那个月份
+            if (month !== currentMonth) {
+                currentMonth = month;
+                renderCalendar();
+                applyTheme(currentMonth);
+            }
+        }
+
+        // 渲染选中日期的待办事项
+        function renderTodosForSelectedDate() {
+            const dateKey = formatDateKey(selectedDate);
+            const dayTodos = todos[dateKey] || [];
+            
+            todosContainer.innerHTML = '';
+            
+            if (dayTodos.length === 0) {
+                todosContainer.appendChild(emptyTodosElement);
+                emptyTodosElement.style.display = 'block';
+                return;
+            }
+            
+            emptyTodosElement.style.display = 'none';
+            
+            // 按完成状态排序：未完成的在前，已完成的在后
+            dayTodos.sort((a, b) => {
+                if (a.completed && !b.completed) return 1;
+                if (!a.completed && b.completed) return -1;
+                return 0;
+            });
+            
+            dayTodos.forEach(todo => {
+                const todoElement = document.createElement('div');
+                todoElement.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                todoElement.dataset.id = todo.id;
+                
+                todoElement.innerHTML = `
+                    <div class="todo-checkbox">
+                        ${todo.completed ? '<i class="fas fa-check"></i>' : ''}
+                    </div>
+                    <div class="todo-content">
+                        <div class="todo-text">${todo.text}</div>
+                        ${todo.time ? `<div class="todo-time">${todo.time}</div>` : ''}
+                    </div>
+                    <div class="todo-actions">
+                        <button class="todo-action-btn edit-todo" title="编辑">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="todo-action-btn delete-todo" title="删除">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // 添加事件监听器
+                const checkbox = todoElement.querySelector('.todo-checkbox');
+                checkbox.addEventListener('click', () => toggleTodoComplete(todo.id));
+                
+                const editBtn = todoElement.querySelector('.edit-todo');
+                editBtn.addEventListener('click', () => editTodo(todo.id));
+                
+                const deleteBtn = todoElement.querySelector('.delete-todo');
+                deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+                
+                todosContainer.appendChild(todoElement);
+            });
+        }
+
+        // 添加待办事项
+        function addTodo(text, time = '') {
+            const dateKey = formatDateKey(selectedDate);
+            if (!todos[dateKey]) {
+                todos[dateKey] = [];
+            }
+            
+            const newTodo = {
+                id: Date.now(),
+                text,
+                time,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            todos[dateKey].push(newTodo);
+            saveTodos();
+            renderTodosForSelectedDate();
+            renderCalendar(); // 更新日历上的待办事项计数
+        }
+
+        // 编辑待办事项
+        function editTodo(id) {
+            const dateKey = formatDateKey(selectedDate);
+            const todoIndex = todos[dateKey].findIndex(todo => todo.id === id);
+            
+            if (todoIndex !== -1) {
+                const todo = todos[dateKey][todoIndex];
+                editingTodoId = id;
+                
+                // 填充表单
+                modalTitle.textContent = '编辑待办事项';
+                todoDateInput.value = selectedDateElement.textContent;
+                todoTextInput.value = todo.text;
+                todoTimeInput.value = todo.time || '';
+                
+                // 显示模态框
+                todoModal.classList.add('active');
+                todoTextInput.focus();
+            }
+        }
+
+        // 更新待办事项
+        function updateTodo(id, text, time) {
+            const dateKey = formatDateKey(selectedDate);
+            const todoIndex = todos[dateKey].findIndex(todo => todo.id === id);
+            
+            if (todoIndex !== -1) {
+                todos[dateKey][todoIndex].text = text;
+                todos[dateKey][todoIndex].time = time;
+                saveTodos();
+                renderTodosForSelectedDate();
+            }
+        }
+
+        // 切换待办事项完成状态
+        function toggleTodoComplete(id) {
+            const dateKey = formatDateKey(selectedDate);
+            const todoIndex = todos[dateKey].findIndex(todo => todo.id === id);
+            
+            if (todoIndex !== -1) {
+                todos[dateKey][todoIndex].completed = !todos[dateKey][todoIndex].completed;
+                saveTodos();
+                renderTodosForSelectedDate();
+                renderCalendar(); // 更新日历上的待办事项计数
+            }
+        }
+
+        // 删除待办事项
+        function deleteTodo(id) {
+            if (confirm('确定要删除这个待办事项吗？')) {
+                const dateKey = formatDateKey(selectedDate);
+                todos[dateKey] = todos[dateKey].filter(todo => todo.id !== id);
+                
+                // 如果该日期没有待办事项了，删除日期键
+                if (todos[dateKey].length === 0) {
+                    delete todos[dateKey];
+                }
+                
+                saveTodos();
+                renderTodosForSelectedDate();
+                renderCalendar(); // 更新日历上的待办事项计数
+            }
+        }
+
+        // 保存待办事项到本地存储
+        function saveTodos() {
+            localStorage.setItem('2026-calendar-todos', JSON.stringify(todos));
+        }
+
+        // 应用月份主题
+        function applyTheme(monthIndex) {
+            const color = CALENDAR_2026.months[monthIndex].color;
+            document.documentElement.style.setProperty('--primary-color', color);
+            
+            // 更新主题选择器
+            themeOptions.forEach(option => {
+                option.classList.remove('active');
+                if (parseInt(option.dataset.month) === monthIndex) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        // 格式化日期键
+        function formatDateKey(date) {
+            return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 月份导航
+            document.getElementById('prev-month').addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar();
+                applyTheme(currentMonth);
+            });
+            
+            document.getElementById('next-month').addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar();
+                applyTheme(currentMonth);
+            });
+            
+            // 主题选择器
+            themeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const month = parseInt(option.dataset.month);
+                    currentMonth = month;
+                    renderCalendar();
+                    applyTheme(month);
+                });
+            });
+            
+            // 添加待办事项按钮
+            document.getElementById('add-todo-desktop').addEventListener('click', openTodoModal);
+            document.getElementById('add-todo-mobile').addEventListener('click', openTodoModal);
+            
+            // 模态框
+            document.getElementById('close-modal').addEventListener('click', closeTodoModal);
+            document.getElementById('cancel-todo').addEventListener('click', closeTodoModal);
+            
+            // 表单提交
+            todoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const text = todoTextInput.value.trim();
+                const time = todoTimeInput.value.trim();
+                
+                if (!text) {
+                    alert('请输入待办事项内容');
+                    return;
+                }
+                
+                if (editingTodoId) {
+                    updateTodo(editingTodoId, text, time);
+                    editingTodoId = null;
+                } else {
+                    addTodo(text, time);
+                }
+                
+                closeTodoModal();
+                todoForm.reset();
+            });
+            
+            // 点击模态框外部关闭
+            todoModal.addEventListener('click', function(e) {
+                if (e.target === todoModal) {
+                    closeTodoModal();
+                }
+            });
+        }
+
+        // 打开待办事项模态框
+        function openTodoModal() {
+            editingTodoId = null;
+            modalTitle.textContent = '添加待办事项';
+            todoDateInput.value = selectedDateElement.textContent;
+            todoTextInput.value = '';
+            todoTimeInput.value = '';
+            todoModal.classList.add('active');
+            todoTextInput.focus();
+        }
+
+        // 关闭待办事项模态框
+        function closeTodoModal() {
+            todoModal.classList.remove('active');
+            todoForm.reset();
+            editingTodoId = null;
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', initCalendar);
+    </script>
+</body>
+</html>
